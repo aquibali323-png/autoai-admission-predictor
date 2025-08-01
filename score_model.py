@@ -4,32 +4,36 @@ import pandas as pd
 import json
 import os
 
-# Load credentials from .env file
+# Load environment variables from .env
 load_dotenv()
 
-# Watson Machine Learning credentials and configs
+# WML Credentials
 wml_credentials = {
     "url": os.getenv("WML_URL"),
     "apikey": os.getenv("WML_APIKEY")
 }
-
 space_id = os.getenv("WML_SPACE_ID")
 deployment_id = os.getenv("WML_DEPLOYMENT_ID")
 
-# Connect to IBM Watson Machine Learning
+# Initialize IBM WML client
 client = APIClient(wml_credentials)
 client.set.default_space(space_id)
 
-# === Load CSV and Prepare Payload ===
 try:
-    # Load your test dataset
-    df = pd.read_csv("Admission_Predict.csv")  # <-- Change filename if needed
+    # Load your dataset
+    df = pd.read_csv("Admission_Predict.csv")  # Ensure this matches your actual CSV file
 
-    # Drop columns not required by model
-    columns_to_drop = ["Chance of Admit", "Serial No.", "Serial No"]
-    df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
+    # Drop the target and identifier columns
+    df = df.drop(columns=["Serial No.", "Chance of Admit"])
 
-    # Construct input payload
+    # Reorder columns if needed (based on training order)
+    expected_fields = [
+        "GRE Score", "TOEFL Score", "University Rating", "SOP",
+        "LOR", "CGPA", "Research"
+    ]
+    df = df[expected_fields]
+
+    # Create payload for scoring
     payload = {
         "input_data": [
             {
@@ -39,12 +43,12 @@ try:
         ]
     }
 
-    # === Score the model ===
+    # Perform scoring
     response = client.deployments.score(deployment_id, payload)
 
-    # Print formatted prediction results
-    print("\n✅ Scoring successful. Results:\n")
+    # Print response
+    print("\n✅ Scoring successful. Model predictions:\n")
     print(json.dumps(response, indent=2))
 
 except Exception as e:
-    print("❌ Scoring failed:", str(e))
+    print("❌ Error during scoring:", str(e))
