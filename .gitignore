@@ -1,0 +1,28 @@
+# Don't track Python cache files
+__pycache__/
+*.py[cod]
+
+# Don't track Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore system files
+.DS_Store
+
+# Ignore environment variables and secrets
+.env
+
+# VSCode settings (optional)
+.vscode/
+
+# Logs
+*.log
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Ignore compiled Python files
+*.pyo
+*.pyd
+*.so
